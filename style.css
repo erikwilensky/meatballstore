@@ -1,0 +1,19 @@
+/* General font size for the app */
+body {
+    font-size: 18px;
+}
+
+/* Larger font for headers */
+h1, h2, h3, h4, h5, h6 {
+    font-size: 22px !important;
+}
+
+/* Adjust font size for sidebar */
+.css-1lcbmhc {
+    font-size: 18px !important;
+}
+
+/* Adjust font size for dataframes */
+.stDataFrame {
+    font-size: 16px !important;
+}
