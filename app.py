@@ -4,7 +4,7 @@ from components.inventory import set_weekly_inventory
 from components.reporting import generate_usage_report
 
 def main():
-    st.title("Business Tracker App")
+    st.title("OY INDUSTRIES")
 
     # Horizontal navigation menu
     menu = st.radio(
