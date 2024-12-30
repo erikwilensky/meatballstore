@@ -78,11 +78,13 @@ def setup_database():
 
         conn.execute("""
                    CREATE TABLE IF NOT EXISTS tasks (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        name TEXT NOT NULL,
-                        description TEXT NOT NULL,
-                        due_date TEXT NOT NULL,
-                        image_path TEXT
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    description TEXT NOT NULL,
+    deadline TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'Pending',
+    parent_task INTEGER DEFAULT NULL,
+    FOREIGN KEY (parent_task) REFERENCES tasks (id)
                     )
                """)
 
