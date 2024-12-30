@@ -1,19 +1,109 @@
 /* General font size for the app */
 body {
-    font-size: 18px;
+    font-size: 22px;
+    background-color: rgb(132, 175, 227); /* Light blue background */
 }
 
 /* Larger font for headers */
 h1, h2, h3, h4, h5, h6 {
-    font-size: 22px !important;
+    font-size: 28px !important;
+    color: #003366; /* Dark blue for text */
 }
 
 /* Adjust font size for sidebar */
 .css-1lcbmhc {
-    font-size: 18px !important;
+    font-size: 22px !important;
 }
 
 /* Adjust font size for dataframes */
 .stDataFrame {
-    font-size: 16px !important;
+    font-size: 20px !important;
+    color: #003366; /* Dark text for contrast */
+}
+
+/* Buttons */
+button, .stButton > button {
+    background-color: #5d85c7; /* Medium blue button */
+    color: white; /* White text on buttons */
+    font-size: 20px; /* Larger text */
+    border: none;
+    border-radius: 8px;
+    padding: 12px 25px;
+    cursor: pointer;
+}
+
+button:hover, .stButton > button:hover {
+    background-color: #003366; /* Darker blue on hover */
+}
+
+/* Sidebar adjustments */
+.css-1d391kg {
+    background-color: #aac8eb; /* Softer light blue */
+    color: #003366;
+}
+
+/* Progress bars */
+.css-fk4esd {
+    background-color: #003366 !important; /* Dark blue progress bar */
+}
+
+/* Inputs */
+input {
+    background-color: #ffffff; /* White for visibility */
+    border: 2px solid #003366; /* Dark blue border */
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 20px; /* Larger input font */
+    color: #003366;
+}
+
+/* Radio buttons and dropdowns */
+.stRadio label, .stSelectbox label {
+    font-weight: bold;
+    font-size: 20px;
+    color: #003366;
+}
+
+/* Expander sections */
+.st-expander-header {
+    color: #003366;
+    font-weight: bold;
+    font-size: 22px;
+}
+
+/* Table font size */
+.css-1koxp5r {
+    font-size: 20px;
+}
+
+/* Navigation buttons */
+.nav-button {
+    font-size: 22px;
+    padding: 15px 30px;
+    background-color: #5d85c7;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    text-align: center;
+    margin: 5px;
+}
+
+.nav-button:hover {
+    background-color: #003366;
+}
+
+/* Adjustments for mobile devices */
+@media screen and (max-width: 768px) {
+    body {
+        font-size: 20px;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-size: 24px !important;
+    }
+
+    button, .nav-button {
+        font-size: 18px;
+        padding: 10px 20px;
+    }
 }

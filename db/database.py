@@ -1,8 +1,12 @@
 import sqlite3
+import os
 
 DB_FILE = "business_tracker.db"
 _db_initialized = False
 
+# Set DB_FILE to the root of the project directory
+DB_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "business_tracker.db")
+_db_initialized = False
 
 def get_connection():
     """
@@ -68,6 +72,28 @@ def setup_database():
                 start_inventory BOOLEAN NOT NULL DEFAULT 0,
                 end_inventory BOOLEAN NOT NULL DEFAULT 0,
                 UNIQUE(week_number, year)
+            )
+        """)
+
+
+        conn.execute("""
+                   CREATE TABLE IF NOT EXISTS tasks (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        name TEXT NOT NULL,
+                        description TEXT NOT NULL,
+                        due_date TEXT NOT NULL,
+                        image_path TEXT
+                    )
+               """)
+
+        # Create table for accounts
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS accounts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                balance INTEGER NOT NULL,
+                goal INTEGER NOT NULL,
+                UNIQUE(name)
             )
         """)
 
