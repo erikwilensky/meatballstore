@@ -4,45 +4,65 @@ import requests
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
+from googleapiclient.http import MediaFileUpload
+
+# Constants
+SCOPES = ['https://www.googleapis.com/auth/drive.file']
+DB_FILE = "business_tracker.db"
+CREDENTIALS_FILE = "db/credentials.json"  # Path to your client secret file
+TOKEN_FILE = "token.json"  # File to store reusable access tokens
+UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files/1CI6zLUicS0MaR2iP9TyDQ_Udjq_QF8Q_?uploadType=media"
+DB_URL = "https://drive.google.com/uc?export=download&id=1CI6zLUicS0MaR2iP9TyDQ_Udjq_QF8Q_"
+
 
 def get_access_token():
-    SCOPES = ['https://www.googleapis.com/auth/drive.file']
+    """
+    Authenticate with Google Drive and return an OAuth token.
+    Reuses the token.json file to avoid re-authentication.
+    """
     creds = None
 
     # Check if token.json already exists
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if os.path.exists(TOKEN_FILE):
+        creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
 
     # If credentials are invalid or don't exist, generate them
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file('db/credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
             creds = flow.run_local_server(port=0)
 
         # Save the credentials for future use
-        with open('token.json', 'w') as token:
+        with open(TOKEN_FILE, 'w') as token:
             token.write(creds.to_json())
 
     return creds.token
-    
-ACCESS_TOKEN = get_access_token()
 
-# Google Drive upload link for your file
-UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files/1CI6zLUicS0MaR2iP9TyDQ_Udjq_QF8Q_?uploadType=media"
 
-# OAuth 2.0 Bearer Token (replace with your token if needed)
-ACCESS_TOKEN = "your_oauth_token_here"
+def download_database():
+    """
+    Download the SQLite database from Google Drive if it doesn't exist locally.
+    """
+    if not os.path.exists(DB_FILE):
+        print("Database file not found locally. Downloading from Google Drive...")
+        response = requests.get(DB_URL)
+        if response.status_code == 200:
+            with open(DB_FILE, "wb") as file:
+                file.write(response.content)
+            print("Database downloaded successfully.")
+        else:
+            raise Exception(f"Failed to download database file. Status code: {response.status_code}")
+
 
 def upload_database():
     """
     Upload the updated SQLite database to Google Drive.
     """
-    ACCESS_TOKEN = get_access_token()
+    access_token = get_access_token()
     headers = {
-        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/octet-stream",
     }
     with open(DB_FILE, "rb") as file:
@@ -52,23 +72,6 @@ def upload_database():
     else:
         print(f"Failed to upload database. Status code: {response.status_code}")
         print(response.json())
-
-# Public URL for the SQLite database file on Google Drive
-DB_URL = "https://drive.google.com/uc?export=download&id=1CI6zLUicS0MaR2iP9TyDQ_Udjq_QF8Q_"
-
-# Local path for the database file
-DB_FILE = "business_tracker.db"
-
-# Download the database if it doesn't exist locally
-if not os.path.exists(DB_FILE):
-    print("Database file not found locally. Downloading from Google Drive...")
-    response = requests.get(DB_URL)
-    if response.status_code == 200:
-        with open(DB_FILE, "wb") as file:
-            file.write(response.content)
-        print("Database downloaded successfully.")
-    else:
-        raise Exception(f"Failed to download database file. Status code: {response.status_code}")
 
 def get_connection():
     """
