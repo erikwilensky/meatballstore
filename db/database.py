@@ -4,7 +4,8 @@ import requests
 import sqlitecloud
 
 # Connection details
-SQLITECLOUD_URL = "sqlitecloud://cw3hlt0nnz.sqlite.cloud:8860?apikey=WcLJyCl3vRVS7mZaXIM6jXJSvKgAYBCvqfRItH6kmZA"
+SQLITECLOUD_URL = "sqlitecloud://cw3hlt0nnz.sqlite.cloud:8860/business_tracker.db?apikey=WcLJyCl3vRVS7mZaXIM6jXJSvKgAYBCvqfRItH6kmZA"
+
 
 def get_connection():
     """
@@ -12,6 +13,7 @@ def get_connection():
     """
     conn = sqlitecloud.connect(SQLITECLOUD_URL)
     return conn
+
     
 def setup_database():
     """
@@ -107,3 +109,10 @@ def reset_database():
         conn.execute("DROP TABLE IF EXISTS accounts;")
         conn.commit()
     setup_database()
+
+
+if __name__ == "__main__":
+    with get_connection() as conn:
+        cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table';")
+        tables = cursor.fetchall()
+        print("Tables in the database:", [table[0] for table in tables])
