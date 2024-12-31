@@ -6,6 +6,30 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 
+def get_access_token():
+    SCOPES = ['https://www.googleapis.com/auth/drive.file']
+    creds = None
+
+    # Check if token.json already exists
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+
+    # If credentials are invalid or don't exist, generate them
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file('db/credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+
+        # Save the credentials for future use
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
+
+    return creds.token
+    
+ACCESS_TOKEN = get_access_token()
+
 # Google Drive upload link for your file
 UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files/1CI6zLUicS0MaR2iP9TyDQ_Udjq_QF8Q_?uploadType=media"
 
@@ -16,6 +40,7 @@ def upload_database():
     """
     Upload the updated SQLite database to Google Drive.
     """
+    ACCESS_TOKEN = get_access_token()
     headers = {
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "application/octet-stream",
@@ -27,8 +52,6 @@ def upload_database():
     else:
         print(f"Failed to upload database. Status code: {response.status_code}")
         print(response.json())
-
-# End of new code
 
 # Public URL for the SQLite database file on Google Drive
 DB_URL = "https://drive.google.com/uc?export=download&id=1CI6zLUicS0MaR2iP9TyDQ_Udjq_QF8Q_"
