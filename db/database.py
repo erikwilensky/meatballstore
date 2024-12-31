@@ -2,6 +2,30 @@ import sqlite3
 import os
 import requests
 
+# Google Drive upload link for your file
+UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files/1CI6zLUicS0MaR2iP9TyDQ_Udjq_QF8Q_?uploadType=media"
+
+# OAuth 2.0 Bearer Token (replace with your token if needed)
+ACCESS_TOKEN = "your_oauth_token_here"
+
+def upload_database():
+    """
+    Upload the updated SQLite database to Google Drive.
+    """
+    headers = {
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "application/octet-stream",
+    }
+    with open(DB_FILE, "rb") as file:
+        response = requests.patch(UPLOAD_URL, headers=headers, data=file)
+    if response.status_code == 200:
+        print("Database uploaded successfully.")
+    else:
+        print(f"Failed to upload database. Status code: {response.status_code}")
+        print(response.json())
+
+# End of new code
+
 # Public URL for the SQLite database file on Google Drive
 DB_URL = "https://drive.google.com/uc?export=download&id=1CI6zLUicS0MaR2iP9TyDQ_Udjq_QF8Q_"
 
