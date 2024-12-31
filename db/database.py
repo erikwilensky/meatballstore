@@ -1,14 +1,23 @@
 import sqlite3
 import os
+import requests
 
+# Public URL for the SQLite database file on Google Drive
+DB_URL = "https://drive.google.com/uc?export=download&id=1CI6zLUicS0MaR2iP9TyDQ_Udjq_QF8Q_"
+
+# Local path for the database file
 DB_FILE = "business_tracker.db"
-_db_initialized = False
 
-# Set DB_FILE to the root of the project directory
-DB_FILE = os.path.join(os.path.dirname(__file__), "../business_tracker.db")
-
-
-_db_initialized = False
+# Download the database if it doesn't exist locally
+if not os.path.exists(DB_FILE):
+    print("Database file not found locally. Downloading from Google Drive...")
+    response = requests.get(DB_URL)
+    if response.status_code == 200:
+        with open(DB_FILE, "wb") as file:
+            file.write(response.content)
+        print("Database downloaded successfully.")
+    else:
+        raise Exception(f"Failed to download database file. Status code: {response.status_code}")
 
 def get_connection():
     """
@@ -18,15 +27,10 @@ def get_connection():
     conn.row_factory = sqlite3.Row  # Rows are accessible as dictionaries
     return conn
 
-
 def setup_database():
     """
     Create necessary tables if they do not exist.
     """
-    global _db_initialized
-    if _db_initialized:
-        return  # Prevent redundant setup
-
     with get_connection() as conn:
         # Create table for daily entries
         conn.execute("""
@@ -77,18 +81,18 @@ def setup_database():
             )
         """)
 
-
+        # Create table for tasks
         conn.execute("""
-                   CREATE TABLE IF NOT EXISTS tasks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    description TEXT NOT NULL,
-    deadline TEXT NOT NULL,
-    status TEXT NOT NULL DEFAULT 'Pending',
-    parent_task INTEGER DEFAULT NULL,
-    FOREIGN KEY (parent_task) REFERENCES tasks (id)
-                    )
-               """)
+            CREATE TABLE IF NOT EXISTS tasks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                description TEXT NOT NULL,
+                deadline TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'Pending',
+                parent_task INTEGER DEFAULT NULL,
+                FOREIGN KEY (parent_task) REFERENCES tasks (id)
+            )
+        """)
 
         # Create table for accounts
         conn.execute("""
@@ -102,8 +106,6 @@ def setup_database():
         """)
 
         conn.commit()
-    _db_initialized = True
-
 
 def reset_database():
     """
@@ -115,5 +117,7 @@ def reset_database():
         conn.execute("DROP TABLE IF EXISTS inventory_items;")
         conn.execute("DROP TABLE IF EXISTS weekly_inventory;")
         conn.execute("DROP TABLE IF EXISTS weekly_tracking;")
+        conn.execute("DROP TABLE IF EXISTS tasks;")
+        conn.execute("DROP TABLE IF EXISTS accounts;")
         conn.commit()
     setup_database()
