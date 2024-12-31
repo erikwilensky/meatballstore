@@ -41,19 +41,21 @@ def get_access_token():
     return creds.token
 
 
-def download_database():
+def download_or_initialize_database():
     """
-    Download the SQLite database from Google Drive if it doesn't exist locally.
+    Download the SQLite database from Google Drive if it exists,
+    or initialize a new one if it doesn't.
     """
     if not os.path.exists(DB_FILE):
-        print("Database file not found locally. Downloading from Google Drive...")
+        print("Database file not found locally. Attempting to download from Google Drive...")
         response = requests.get(DB_URL)
         if response.status_code == 200:
             with open(DB_FILE, "wb") as file:
                 file.write(response.content)
             print("Database downloaded successfully.")
         else:
-            raise Exception(f"Failed to download database file. Status code: {response.status_code}")
+            print(f"Failed to download database. Status code: {response.status_code}. Initializing a new database.")
+            setup_database()  # Create a new database if download fails
 
 
 def upload_database():
@@ -72,7 +74,6 @@ def upload_database():
     else:
         print(f"Failed to upload database. Status code: {response.status_code}")
         print(response.json())
-
 def get_connection():
     """
     Establish a connection to the SQLite database.
