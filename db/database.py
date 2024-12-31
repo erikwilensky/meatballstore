@@ -1,91 +1,18 @@
 import sqlite3
 import os
 import requests
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaFileUpload
+import sqlitecloud
 
-# Constants
-SCOPES = ['https://www.googleapis.com/auth/drive.file']
-DB_FILE = "business_tracker.db"
-CREDENTIALS_FILE = "db/credentials.json"  # Path to your client secret file
-TOKEN_FILE = "token.json"  # File to store reusable access tokens
-UPLOAD_URL = "https://www.googleapis.com/upload/drive/v3/files/1CI6zLUicS0MaR2iP9TyDQ_Udjq_QF8Q_?uploadType=media"
-DB_URL = "https://drive.google.com/uc?export=download&id=1CI6zLUicS0MaR2iP9TyDQ_Udjq_QF8Q_"
+# Connection details
+SQLITECLOUD_URL = "sqlitecloud://cw3hlt0nnz.sqlite.cloud:8860?apikey=WcLJyCl3vRVS7mZaXIM6jXJSvKgAYBCvqfRItH6kmZA"
 
-
-def get_access_token():
-    """
-    Authenticate with Google Drive and return an OAuth token.
-    Reuses the token.json file to avoid re-authentication.
-    """
-    creds = None
-
-    # Check if token.json already exists
-    if os.path.exists(TOKEN_FILE):
-        creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
-
-    # If credentials are invalid or don't exist, generate them
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
-            creds = flow.run_local_server(port=0)
-
-        # Save the credentials for future use
-        with open(TOKEN_FILE, 'w') as token:
-            token.write(creds.to_json())
-
-    return creds.token
-
-
-def download_or_initialize_database():
-    """
-    Download the SQLite database from Google Drive if it exists,
-    or initialize a new one if it doesn't.
-    """
-    if not os.path.exists(DB_FILE):
-        print("Database file not found locally. Attempting to download from Google Drive...")
-        response = requests.get(DB_URL)
-        if response.status_code == 200:
-            with open(DB_FILE, "wb") as file:
-                file.write(response.content)
-            print("Database downloaded successfully.")
-        else:
-            print(f"Failed to download database. Status code: {response.status_code}. Initializing a new database.")
-            setup_database()  # Create a new database if download fails
-    else:
-        print("Local database found. Ensuring tables exist...")
-        setup_database()  # Ensure tables are created in the existing database
-
-
-
-def upload_database():
-    """
-    Upload the updated SQLite database to Google Drive.
-    """
-    access_token = get_access_token()
-    headers = {
-        "Authorization": f"Bearer {access_token}",
-        "Content-Type": "application/octet-stream",
-    }
-    with open(DB_FILE, "rb") as file:
-        response = requests.patch(UPLOAD_URL, headers=headers, data=file)
-    if response.status_code == 200:
-        print("Database uploaded successfully.")
-    else:
-        print(f"Failed to upload database. Status code: {response.status_code}")
-        print(response.json())
 def get_connection():
     """
-    Establish a connection to the SQLite database.
+    Establish a connection to the SQLiteCloud database.
     """
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row  # Rows are accessible as dictionaries
+    conn = sqlitecloud.connect(SQLITECLOUD_URL)
     return conn
-
+    
 def setup_database():
     """
     Create necessary tables if they do not exist.
