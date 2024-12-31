@@ -56,6 +56,10 @@ def download_or_initialize_database():
         else:
             print(f"Failed to download database. Status code: {response.status_code}. Initializing a new database.")
             setup_database()  # Create a new database if download fails
+    else:
+        print("Local database found. Ensuring tables exist...")
+        setup_database()  # Ensure tables are created in the existing database
+
 
 
 def upload_database():
