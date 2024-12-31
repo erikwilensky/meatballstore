@@ -5,12 +5,16 @@ from components.daily_entries import display_daily_entries_menu
 from components.inventory import display_meatball_inventory
 from components.reporting import generate_usage_report
 from components.move_forward import display_move_forward_menu
+from db.database import setup_database
+
 
 
 
 
 
 def main():
+    setup_database()
+
     # Set page configuration
     st.set_page_config(page_title="Oy Companies Data System", layout="wide")
 
