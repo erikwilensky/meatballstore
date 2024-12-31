@@ -5,7 +5,8 @@ DB_FILE = "business_tracker.db"
 _db_initialized = False
 
 # Set DB_FILE to the root of the project directory
-DB_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), "business_tracker.db")
+DB_FILE = os.path.join(os.path.dirname(__file__), "db", "business_tracker.db")
+
 _db_initialized = False
 
 def get_connection():
